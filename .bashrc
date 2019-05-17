@@ -1,4 +1,2 @@
-
-
-date "+ %Y-%m-%d%nTIME: %H:%M:%S" | figlet
-fortune | cowthink -f dragon
+date "+ %H : %M" | figlet -f univers 
+fortune | cowthink -f tux | lolcat
