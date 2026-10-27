@@ -30,6 +30,17 @@ Broken findings are found by running things. Logic issues need reasoning about i
 | `bug-hunter` | Opus | Logic issues, one risky area per agent |
 | `test-auditor` | Sonnet | Coverage gaps, one area per agent |
 
+## Scale to the repo
+Count source lines first (exclude lockfiles, generated, vendored and config files) and say the plan out loud. Agents earn their place on code you can't read yourself in the time.
+
+| Size | Source lines | Wide sweep | Deep dive |
+|---|---|---|---|
+| Small | under 1,500 | Read it yourself. Run tests with coverage and the linters yourself. `e2e-tester` only if there's a UI. | 1 `bug-hunter` on the riskiest file, if any. `test-auditor` only if there are tests worth auditing. |
+| Medium | 1,500 – 15,000 | `test-runner` + `static-scanner`; `recon` only if no tour was done; `e2e-tester` if there's a UI | 2 `bug-hunter`, 1 `test-auditor` |
+| Large | over 15,000 | All four in parallel | 3 `bug-hunter`, 1–2 `test-auditor` |
+
+Keep `FINDINGS.md` proportional: a small repo has a handful of real findings, not a table per agent. Leave out empty sections.
+
 ## 1. Orient (~5 min)
 - Ask the user: known symptoms or bug reports? What matters most? How is the app run?
 - Read the README yourself. Start the app in the background if there's a UI or an API to call.

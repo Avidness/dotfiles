@@ -3,7 +3,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Barlow+Condensed:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-/* Layout: an onboarding map. Summary first, then diagram, then reference sections in reading order. Fill every {{placeholder}}. */
+/* Layout: an onboarding map. Summary first, then diagram, then reference sections in reading order.
+   Fill every {{placeholder}}. Sections marked OPTIONAL are deleted unless SKILL.md says to keep them. Stay inside the word budget. */
 :root {
   --bg: #f3f5f6; --surface: #ffffff; --ink: #16212b; --muted: #586776; --line: #d9e0e5;
   --accent: #0b6e69; --accent-soft: #dff0ee; --warn: #8a5a00; --warn-soft: #fbf0d9; --code: #eaeef1;
@@ -102,9 +103,10 @@ flowchart LR
   routes --> services[{{Services / business logic}}]
   services --> db[({{Database}})]
   </pre></div>
-  <p>{{Three or four sentences on the layering and the rules that hold it together.}}</p>
+  <p>{{One to three sentences on the layering and the rules that hold it together.}}</p>
 </section>
 
+<!-- OPTIONAL: only if there is a UI or API docs page to screenshot. Max 3 shots (small), 6 (large). -->
 <section>
   <span class="eyebrow">What a user sees</span>
   <h2>Screens</h2>
@@ -116,6 +118,7 @@ flowchart LR
   </div>
 </section>
 
+<!-- OPTIONAL: medium and large repos only. Folders and key files, never every file. -->
 <section>
   <span class="eyebrow">Where things are</span>
   <h2>Folder map</h2>
@@ -124,6 +127,7 @@ flowchart LR
   {{file}}           {{what it does}}</pre>
 </section>
 
+<!-- OPTIONAL: only with 3 or more entities. -->
 <section>
   <span class="eyebrow">What it stores</span>
   <h2>Data model</h2>
@@ -135,6 +139,7 @@ flowchart LR
   </table></div>
 </section>
 
+<!-- OPTIONAL: up to 3 flows, max 5 steps each. File names; line numbers only where they matter. -->
 <section>
   <span class="eyebrow">Traced through the code</span>
   <h2>Main flows</h2>
@@ -160,9 +165,10 @@ flowchart LR
   </table></div>
 </section>
 
+<!-- OPTIONAL: max 3 risks about the code (not repo housekeeping), max 3 questions the team could answer. -->
 <section>
   <span class="eyebrow">Watch out</span>
-  <h2>Risky areas and open questions</h2>
+  <h2>Watch out</h2>
   <div class="risks">
     <div class="risk"><b>{{Area}}</b> {{why it's risky: complex, untested, recently changed, money or permissions}} <code>{{file}}</code></div>
   </div>
@@ -171,6 +177,7 @@ flowchart LR
   </ul>
 </section>
 
+<!-- OPTIONAL: domain terms a newcomer wouldn't know. Never tool names. -->
 <section>
   <span class="eyebrow">Terms</span>
   <h2>Glossary</h2>
