@@ -1,29 +1,35 @@
-# Debugging report: <repo>
+# Findings report: <repo>
 
 ## Summary
-<Two or three sentences: how many bugs found, how many fixed, the most serious one, and the state of the test suite now.>
+<Two or three sentences: what was found, the most serious problem, and how much the tests can be trusted.>
 
-## Fixed
+| | Critical | High | Medium | Low | Total |
+|---|---|---|---|---|---|
+| Broken | | | | | |
+| Logic issues | | | | | |
+| Coverage gaps | | | | | |
 
-| # | Bug | Severity | Root cause | Fix | Regression test | Commit |
+## Top findings
+
+| # | Kind | Finding | Severity | Impact | Evidence | Suggested fix |
 |---|---|---|---|---|---|---|
 | | | | | | | |
 
-## Found, not fixed
+Full list with triggers and evidence: `FINDINGS.md`.
 
-| # | Bug | Severity | Why not fixed | Suggested fix |
-|---|---|---|---|---|
-| | | | | |
+## Test health
+- Suite: <passed> / <total>; <failing> failing, <flaky> flaky
+- Coverage: <lines>% lines, <branches>% branches
+- Biggest gaps: <untested logic that matters>
+- Mutation score on <module>: <score> (if run)
 
-## Test suite
-- Tests: <before> → <after> (passing / total)
-- Coverage: lines <before>% → <after>%, branches <before>% → <after>%
-- Mutation score on <module>: <before>% → <after>%
-- New tests added: <unit / integration / e2e counts>
+## What was checked
+- Wide sweep: recon (Haiku); test-runner, static-scanner, e2e-tester (Sonnet), in parallel.
+- Deep dives: bug-hunter (Opus) on <areas>; test-auditor (Sonnet) on <area>.
+- Found clean: <areas>
+- Not covered: <what wasn't looked at, and why>
 
-## How this was done
-- Agents: recon (Haiku), test-runner and static-scanner (Sonnet) in parallel; fixers in separate worktrees; e2e with Playwright.
-- Every fix was verified by a test that failed before the fix.
-
-## Risks and next steps
--
+## Recommended next steps
+1. <Highest-impact fix first>
+2.
+3.

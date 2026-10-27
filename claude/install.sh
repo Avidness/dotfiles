@@ -18,6 +18,8 @@ ln -sfn "$DOT/claude/hooks/lint-on-edit.sh" "$C/hooks/lint-on-edit.sh"
 for skill in "$DOT"/claude/skills/*/; do
   ln -sfn "${skill%/}" "$C/skills/$(basename "$skill")"
 done
+# Drop links to agents that were removed from dotfiles, then link the current ones.
+find "$C/agents" -maxdepth 1 -type l ! -exec test -e {} \; -delete
 for agent in "$DOT"/claude/agents/*.md; do
   ln -sfn "$agent" "$C/agents/$(basename "$agent")"
 done

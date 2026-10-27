@@ -22,4 +22,8 @@ You look for bugs by reading and analysing code, not by running the app. You nev
    - HTTP: wrong status codes (200 on error, 500 for bad input)
 3. Discard noise (style-only lint, generated code).
 
-Report a ranked list, most severe first. For each: file:line, the pattern, why it's a real bug (what input breaks it), severity (critical / high / medium / low), and confidence (confirmed by reading / likely / possible). Max 20 items.
+Report a ranked list, most severe first. For each: file:line, the pattern, why it's a real bug (what input breaks it), severity (critical / high / medium / low), confidence (confirmed by reading / likely / possible), and **kind**:
+- **broken:** it fails outright (type error, build or import error, crash, vulnerable dependency)
+- **logic:** it runs but gives the wrong result or allows the wrong thing (bad math, wrong comparison, missing check)
+
+Max 20 items.

@@ -1,0 +1,182 @@
+<title>{{Repo name}} Tour</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Barlow+Condensed:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: an onboarding map. Summary first, then diagram, then reference sections in reading order. Fill every {{placeholder}}. */
+:root {
+  --bg: #f3f5f6; --surface: #ffffff; --ink: #16212b; --muted: #586776; --line: #d9e0e5;
+  --accent: #0b6e69; --accent-soft: #dff0ee; --warn: #8a5a00; --warn-soft: #fbf0d9; --code: #eaeef1;
+  --f-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11171c; --surface: #182129; --ink: #e3e9ee; --muted: #93a2b0; --line: #2a3640;
+    --accent: #5cc8bf; --accent-soft: #15302e; --warn: #f0c062; --warn-soft: #33280f; --code: #0d1216;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11171c; --surface: #182129; --ink: #e3e9ee; --muted: #93a2b0; --line: #2a3640;
+  --accent: #5cc8bf; --accent-soft: #15302e; --warn: #f0c062; --warn-soft: #33280f; --code: #0d1216;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.55 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 960px; margin: 0 auto; padding-block: 40px 80px; display: grid; gap: 44px; }
+h1, h2, h3 { font-family: var(--f-display); line-height: 1.1; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2.2rem, 6vw, 3.2rem); }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.2rem; }
+p { margin: 0; max-width: 70ch; }
+code, pre { font-family: var(--f-mono); font-size: 0.85em; }
+:not(pre) > code { background: var(--code); padding: 1px 5px; border-radius: 3px; }
+.eyebrow { font: 600 0.74rem/1 var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+section, header { display: grid; gap: 14px; min-width: 0; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+.fact { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; display: grid; gap: 2px; }
+.fact span { font: 600 0.68rem var(--f-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+pre.cmd, pre.tree { background: var(--code); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; margin: 0; overflow-x: auto; line-height: 1.55; }
+.diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; overflow-x: auto; }
+pre.mermaid { margin: 0; background: transparent; }
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 0.7rem var(--f-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+tr:last-child td { border-bottom: 0; }
+.flows { display: grid; gap: 14px; }
+.flow { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: grid; gap: 8px; min-width: 0; }
+.flow ol { margin: 0; padding-left: 22px; display: grid; gap: 4px; }
+.risks { display: grid; gap: 8px; }
+.risk { background: var(--warn-soft); border-left: 3px solid var(--warn); border-radius: 0 6px 6px 0; padding: 10px 14px; }
+.ok { color: var(--accent); font-weight: 700; }
+.bad { color: var(--warn); font-weight: 700; }
+.shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.shots figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; display: grid; }
+.shots img { display: block; width: 100%; max-width: 100%; height: auto; border-bottom: 1px solid var(--line); }
+.shots figcaption { padding: 10px 12px; font-size: 0.88rem; display: grid; gap: 2px; }
+dl.gloss { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; }
+dl.gloss dt { font-weight: 700; }
+dl.gloss dd { margin: 0; }
+@media (max-width: 560px) { dl.gloss { grid-template-columns: 1fr; } dl.gloss dd { margin-bottom: 6px; } }
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Codebase tour</span>
+  <h1>{{Repo name}} Tour</h1>
+  <p>{{Two sentences: what the app does, for whom, and the one idea that explains how it's built.}}</p>
+  <div class="facts">
+    <div class="fact"><span>Stack</span>{{e.g. Python 3.12 · FastAPI · SQLAlchemy}}</div>
+    <div class="fact"><span>Data</span>{{e.g. SQLite via SQLAlchemy, 6 tables}}</div>
+    <div class="fact"><span>Size</span>{{e.g. 42 source files · 3,100 lines}}</div>
+    <div class="fact"><span>Tests</span>{{e.g. pytest · 58 tests · 71% lines}}</div>
+  </div>
+</header>
+
+<section>
+  <span class="eyebrow">Run it</span>
+  <h2>Run and test</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Task</th><th>Command</th><th>Checked</th></tr></thead>
+    <tbody>
+      <tr><td>Install</td><td><code>{{command}}</code></td><td class="ok">works</td></tr>
+      <tr><td>Run</td><td><code>{{command}}</code></td><td class="ok">works</td></tr>
+      <tr><td>Test</td><td><code>{{command}}</code></td><td class="bad">{{e.g. 2 failing}}</td></tr>
+      <tr><td>Lint / types</td><td><code>{{command}}</code></td><td>{{result}}</td></tr>
+    </tbody>
+  </table></div>
+  <p>{{Env vars or setup gotchas, if any.}}</p>
+</section>
+
+<section>
+  <span class="eyebrow">How the pieces connect</span>
+  <h2>Architecture</h2>
+  <div class="diagram"><pre class="mermaid">
+flowchart LR
+  client[{{Client}}] --> routes[{{Routes / controllers}}]
+  routes --> services[{{Services / business logic}}]
+  services --> db[({{Database}})]
+  </pre></div>
+  <p>{{Three or four sentences on the layering and the rules that hold it together.}}</p>
+</section>
+
+<section>
+  <span class="eyebrow">What a user sees</span>
+  <h2>Screens</h2>
+  <div class="shots">
+    <figure>
+      <img src="screens/{{01-home}}.png" alt="{{What the screen shows}}">
+      <figcaption><b>{{Screen name}}</b> {{one line: what you do here, and the route or file that renders it}}</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Where things are</span>
+  <h2>Folder map</h2>
+  <pre class="tree">{{repo}}/
+  {{folder}}/        {{what lives here}}
+  {{file}}           {{what it does}}</pre>
+</section>
+
+<section>
+  <span class="eyebrow">What it stores</span>
+  <h2>Data model</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Entity</th><th>Key fields</th><th>Relationships</th><th>Defined in</th></tr></thead>
+    <tbody>
+      <tr><td>{{Entity}}</td><td>{{fields}}</td><td>{{belongs to / has many}}</td><td><code>{{file:line}}</code></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <span class="eyebrow">Traced through the code</span>
+  <h2>Main flows</h2>
+  <div class="flows">
+    <div class="flow">
+      <h3>{{Flow name, e.g. Create an order}}</h3>
+      <ol>
+        <li>{{Step}} <code>{{file:line}}</code></li>
+        <li>{{Step}} <code>{{file:line}}</code></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">For your first change</span>
+  <h2>Where to change what</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>To change…</th><th>Look at</th></tr></thead>
+    <tbody>
+      <tr><td>{{e.g. a validation rule}}</td><td><code>{{file}}</code></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <span class="eyebrow">Watch out</span>
+  <h2>Risky areas and open questions</h2>
+  <div class="risks">
+    <div class="risk"><b>{{Area}}</b> {{why it's risky: complex, untested, recently changed, money or permissions}} <code>{{file}}</code></div>
+  </div>
+  <ul>
+    <li>{{Question to ask the team}}</li>
+  </ul>
+</section>
+
+<section>
+  <span class="eyebrow">Terms</span>
+  <h2>Glossary</h2>
+  <dl class="gloss">
+    <dt>{{Term}}</dt><dd>{{What it means in this codebase}}</dd>
+  </dl>
+</section>
+
+</div>
