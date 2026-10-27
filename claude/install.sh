@@ -5,15 +5,28 @@ DOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 C="$HOME/.claude"
 
 echo "==> Toolchain"
-brew bundle --quiet --file "$DOT/Brewfile"
+# --no-upgrade: install what's missing, never upgrade apps (casks like Docker need sudo).
+brew bundle --quiet --no-upgrade --file "$DOT/Brewfile" \
+  || echo "warning: some Brewfile entries failed; continuing" >&2
 uv python install 3.12 >/dev/null
 for t in ruff pyright pytest; do uv tool install -q "$t" 2>/dev/null || true; done
 
 echo "==> Claude Code config"
-mkdir -p "$C/hooks" "$C/skills"
+mkdir -p "$C/hooks" "$C/skills" "$C/agents"
 ln -sfn "$DOT/claude/CLAUDE.md" "$C/CLAUDE.md"
 ln -sfn "$DOT/claude/hooks/lint-on-edit.sh" "$C/hooks/lint-on-edit.sh"
-ln -sfn "$DOT/claude/skills/scaffold-app" "$C/skills/scaffold-app"
+for skill in "$DOT"/claude/skills/*/; do
+  ln -sfn "${skill%/}" "$C/skills/$(basename "$skill")"
+done
+for agent in "$DOT"/claude/agents/*.md; do
+  ln -sfn "$agent" "$C/agents/$(basename "$agent")"
+done
+
+echo "==> Playwright (browser for e2e tests + MCP server for Claude)"
+npx -y playwright@1.56.1 install chromium >/dev/null
+if ! claude mcp get playwright >/dev/null 2>&1; then
+  claude mcp add --scope user playwright -- npx @playwright/mcp@latest
+fi
 
 # settings.json is merged, not symlinked: Claude Code writes to it.
 S="$C/settings.json"
