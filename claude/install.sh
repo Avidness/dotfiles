@@ -1,15 +1,9 @@
 #!/usr/bin/env bash
-# Install the AI dev kit: toolchain + Claude Code config. Safe to rerun.
+# Link the Claude Code config (CLAUDE.md, hooks, skills, agents) into ~/.claude
+# and merge settings. Installs no software. Safe to rerun.
 set -euo pipefail
 DOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 C="$HOME/.claude"
-
-echo "==> Toolchain"
-# --no-upgrade: install what's missing, never upgrade apps (casks like Docker need sudo).
-brew bundle --quiet --no-upgrade --file "$DOT/Brewfile" \
-  || echo "warning: some Brewfile entries failed; continuing" >&2
-uv python install 3.12 >/dev/null
-for t in ruff pyright pytest; do uv tool install -q "$t" 2>/dev/null || true; done
 
 echo "==> Claude Code config"
 mkdir -p "$C/hooks" "$C/skills" "$C/agents"
@@ -23,12 +17,6 @@ find "$C/agents" -maxdepth 1 -type l ! -exec test -e {} \; -delete
 for agent in "$DOT"/claude/agents/*.md; do
   ln -sfn "$agent" "$C/agents/$(basename "$agent")"
 done
-
-echo "==> Playwright (browser for e2e tests + MCP server for Claude)"
-npx -y playwright@1.56.1 install chromium >/dev/null
-if ! claude mcp get playwright >/dev/null 2>&1; then
-  claude mcp add --scope user playwright -- npx @playwright/mcp@latest
-fi
 
 # settings.json is merged, not symlinked: Claude Code writes to it.
 S="$C/settings.json"

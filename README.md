@@ -9,10 +9,13 @@
 2. Install the prerequisites:
 
    ```sh
-   brew install git node
+   brew install git
    brew install --cask iterm2
-   curl -fsSL https://claude.ai/install.sh | bash
    ```
+
+   `init.sh` links the Claude Code config but does not install Claude Code. If you
+   want it: `curl -fsSL https://claude.ai/install.sh | bash`. The optional AI dev
+   toolchain is in the `Brewfile`: `brew bundle --file ~/projects/dotfiles/Brewfile`.
 
 3. Clone the repo (it must live at `~/projects/dotfiles`):
 

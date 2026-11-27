@@ -1,8 +1,11 @@
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
+# Claude Code and uv tools install to ~/.local/bin.
+export PATH="$HOME/.local/bin:$PATH"
+# VS Code's `code` command.
+VSCODE_BIN="/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
+[ -d "$VSCODE_BIN" ] && export PATH="$PATH:$VSCODE_BIN"
 
 # Path to your oh-my-zsh installation.
-export ZSH="/Users/username/.oh-my-zsh"
+export ZSH="$HOME/.oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
@@ -68,7 +71,7 @@ ZSH_THEME="agnoster"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git)
+plugins=(git docker)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -98,10 +101,11 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-plugins=(git docker)
-
-date "+ %H : %M" | figlet -f univers 
-fortune | cowthink -f tux | lolcat
+# Startup banner; skipped if the tools are not installed yet.
+if command -v figlet >/dev/null && command -v fortune >/dev/null; then
+  date "+ %H : %M" | figlet -f univers
+  fortune | cowthink -f tux | lolcat
+fi
 
 function getPrompt() {
   echo -n "%(?:🐕 :🔥 )"
