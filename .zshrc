@@ -131,10 +131,33 @@ play_frames() {
   [[ -n $tty_state ]] && stty $tty_state 2>/dev/null
 }
 
+# A fortune from Tux: bubble and Tux in white, the saying in rainbow. cowthink
+# draws it plain (color codes would throw off the bubble width), then only the
+# text inside the bubble is colored.
+cow_banner() {
+  local -a cow mid out; local i end
+  cow=("${(@f)$(fortune | cowthink -f tux)}")
+  # Bubble: line 1 is the top edge, text lines follow until the " ---" edge.
+  for (( end = 2; end <= ${#cow}; end++ )); do [[ $cow[end] == ' -'* ]] && break; done
+  for (( i = 2; i < end; i++ )); do mid+=("${cow[i][3,-3]}"); done
+  if command -v lolcat >/dev/null; then
+    out=("${(@f)$(print -rl -- "${mid[@]}" | lolcat -f)}")
+  else
+    out=("${mid[@]}")
+  fi
+  local W=$'\e[37m' R=$'\e[0m'
+  print -r -- "$W$cow[1]"
+  for (( i = 2; i < end; i++ )); do
+    print -r -- "$W${cow[i][1,2]}$R${out[i-1]}$W${cow[i][-2,-1]}"
+  done
+  print -rl -- "${(@)cow[end,-1]}"
+  printf '%s' "$R"
+}
+
 # Startup banner; skipped if the tools are not installed yet.
 if command -v figlet >/dev/null && command -v fortune >/dev/null; then
-  date "+ %H : %M" | figlet -f univers
-  fortune | cowthink -f tux | lolcat
+  printf '\e[36m'; date "+ %H : %M" | figlet -f univers; printf '\e[0m'
+  cow_banner
   play_frames ~/projects/dotfiles/ascii/icosahedron.frames
 fi
 
