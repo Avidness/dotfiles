@@ -113,12 +113,19 @@ play_frames() {
   local below=$2 h=$L[1] i=0 step=1 n b=0
   n=$(( (${#L} - 1) / h ))
   [[ -n $below ]] && b=${#${(f)below}}
+  # Center the frames: pad by half the spare width (color codes don't count).
+  local plain=${(S)L[2]//$'\e'\[*m/}
+  local -i padn=$(( (COLUMNS - ${#plain}) / 2 ))
+  (( padn < 0 )) && padn=0
+  local pad=${(l:padn:: :)}
+  local fmt="$pad%s\e[K\n"
   # Draw the first frame and the text below it.
-  printf '%s\e[K\n' "${(@)L[2,1+h]}"
+  printf "$fmt" "${(@)L[2,1+h]}"
   [[ -n $below ]] && print -r -- "$below"
   # Animate only in a terminal tall enough to hold both (the cursor can't
-  # move back into the scrollback); otherwise leave the first frame.
-  [[ -t 0 && -t 1 ]] && (( LINES > h + b + 1 && n > 1 )) || return 0
+  # move back into the scrollback) and wide enough that lines don't wrap;
+  # otherwise leave the first frame.
+  [[ -t 0 && -t 1 ]] && (( LINES > h + b + 1 && COLUMNS >= ${#plain} && n > 1 )) || return 0
   # Per-key input (so a keypress is seen without Enter) and no echo while drawing.
   local tty_state; tty_state=$(stty -g 2>/dev/null)
   stty -icanon -echo 2>/dev/null
@@ -127,7 +134,7 @@ play_frames() {
     (( i + step < 0 || i + step >= n )) && (( step = -step ))
     (( i += step ))
     printf '\e[%dA' $(( h + b ))
-    printf '%s\e[K\n' "${(@)L[2+i*h,1+(i+1)*h]}"
+    printf "$fmt" "${(@)L[2+i*h,1+(i+1)*h]}"
     (( b )) && printf '\e[%dB' $b
   done
   printf '\e[?25h'
