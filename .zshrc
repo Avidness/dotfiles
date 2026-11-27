@@ -101,31 +101,34 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-# Play an ascii/*.frames file (made by ascii/make-frames.sh) in place, forward
-# then backward, until a key is pressed. The key isn't eaten: if you start
-# typing a command, it lands in the prompt. The frame showing stays in the
-# scrollback. Icosahedron from ASCII Magic (MIT):
-# https://www.ascii-magic.com/ascii/icosahedron
+# Play an ascii/*.frames file (made by ascii/make-frames.sh) with optional
+# text printed below it ($2). The frames play in place above that text,
+# forward then backward, until a key is pressed. The key isn't eaten: if you
+# start typing a command, it lands in the prompt. Dodecahedron from ASCII Magic
+# (MIT): https://www.ascii-magic.com/ascii/rotating-dodecahedron
 zmodload zsh/zselect 2>/dev/null
 play_frames() {
   [[ -r $1 ]] || return 0
   local -a L; L=("${(@f)$(<$1)}")
-  local h=$L[1] i=0 step=1 n
+  local below=$2 h=$L[1] i=0 step=1 n b=0
   n=$(( (${#L} - 1) / h ))
-  # No terminal, or a window too short for it: just print the last frame.
-  if [[ ! -t 0 || ! -t 1 ]] || (( LINES <= h + 1 || n < 2 )); then
-    print -rl -- "${(@)L[2+(n-1)*h,1+n*h]}"; return 0
-  fi
+  [[ -n $below ]] && b=${#${(f)below}}
+  # Draw the first frame and the text below it.
+  printf '%s\e[K\n' "${(@)L[2,1+h]}"
+  [[ -n $below ]] && print -r -- "$below"
+  # Animate only in a terminal tall enough to hold both (the cursor can't
+  # move back into the scrollback); otherwise leave the first frame.
+  [[ -t 0 && -t 1 ]] && (( LINES > h + b + 1 && n > 1 )) || return 0
   # Per-key input (so a keypress is seen without Enter) and no echo while drawing.
   local tty_state; tty_state=$(stty -g 2>/dev/null)
   stty -icanon -echo 2>/dev/null
   printf '\e[?25l'
-  printf '%s\e[K\n' "${(@)L[2,1+h]}"
   until zselect -t 7 -r 0 2>/dev/null; do   # 70ms per frame; stop on input
     (( i + step < 0 || i + step >= n )) && (( step = -step ))
     (( i += step ))
-    printf '\e[%dA' $h
+    printf '\e[%dA' $(( h + b ))
     printf '%s\e[K\n' "${(@)L[2+i*h,1+(i+1)*h]}"
+    (( b )) && printf '\e[%dB' $b
   done
   printf '\e[?25h'
   [[ -n $tty_state ]] && stty $tty_state 2>/dev/null
@@ -150,15 +153,14 @@ cow_banner() {
   for (( i = 2; i < end; i++ )); do
     print -r -- "$W${cow[i][1,2]}$R${out[i-1]}$W${cow[i][-2,-1]}"
   done
-  print -rl -- "${(@)cow[end,-1]}"
-  printf '%s' "$R"
+  print -rl -- "${(@)cow[end,-2]}"
+  print -r -- "${cow[-1]}$R"
 }
 
 # Startup banner; skipped if the tools are not installed yet.
 if command -v figlet >/dev/null && command -v fortune >/dev/null; then
   printf '\e[36m'; date "+ %H : %M" | figlet -f univers; printf '\e[0m'
-  cow_banner
-  play_frames ~/projects/dotfiles/ascii/icosahedron.frames
+  play_frames ~/projects/dotfiles/ascii/rotating-dodecahedron.frames "$(cow_banner)"
 fi
 
 function getPrompt() {
