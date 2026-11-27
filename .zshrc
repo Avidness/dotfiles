@@ -101,28 +101,31 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-# Play an ascii/*.frames file in place (made by ascii/make-frames.sh), leaving
-# the last frame in the scrollback. Typing anything stops it early without
-# eating the keystroke. Icosahedron from ASCII Magic (MIT):
+# Play an ascii/*.frames file (made by ascii/make-frames.sh) in place, forward
+# then backward, until a key is pressed. The key isn't eaten: if you start
+# typing a command, it lands in the prompt. The frame showing stays in the
+# scrollback. Icosahedron from ASCII Magic (MIT):
 # https://www.ascii-magic.com/ascii/icosahedron
 zmodload zsh/zselect 2>/dev/null
 play_frames() {
   [[ -r $1 ]] || return 0
   local -a L; L=("${(@f)$(<$1)}")
-  local h=$L[1] i n
+  local h=$L[1] i=0 step=1 n
   n=$(( (${#L} - 1) / h ))
-  # No terminal or too short a window: just print the last frame.
-  if [[ ! -t 1 ]] || (( LINES <= h + 1 )); then
+  # No terminal, or a window too short for it: just print the last frame.
+  if [[ ! -t 0 || ! -t 1 ]] || (( LINES <= h + 1 || n < 2 )); then
     print -rl -- "${(@)L[2+(n-1)*h,1+n*h]}"; return 0
   fi
   # Per-key input (so a keypress is seen without Enter) and no echo while drawing.
   local tty_state; tty_state=$(stty -g 2>/dev/null)
   stty -icanon -echo 2>/dev/null
   printf '\e[?25l'
-  for (( i = 0; i < n; i++ )); do
-    (( i )) && printf '\e[%dA' $h
+  printf '%s\e[K\n' "${(@)L[2,1+h]}"
+  until zselect -t 7 -r 0 2>/dev/null; do   # 70ms per frame; stop on input
+    (( i + step < 0 || i + step >= n )) && (( step = -step ))
+    (( i += step ))
+    printf '\e[%dA' $h
     printf '%s\e[K\n' "${(@)L[2+i*h,1+(i+1)*h]}"
-    zselect -t 7 -r 0 2>/dev/null && break   # 70ms per frame; stop on input
   done
   printf '\e[?25h'
   [[ -n $tty_state ]] && stty $tty_state 2>/dev/null
@@ -130,9 +133,9 @@ play_frames() {
 
 # Startup banner; skipped if the tools are not installed yet.
 if command -v figlet >/dev/null && command -v fortune >/dev/null; then
-  play_frames ~/projects/dotfiles/ascii/icosahedron.frames
   date "+ %H : %M" | figlet -f univers
   fortune | cowthink -f tux | lolcat
+  play_frames ~/projects/dotfiles/ascii/icosahedron.frames
 fi
 
 function getPrompt() {
