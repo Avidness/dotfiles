@@ -101,10 +101,92 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+# Play an ascii/*.frames file (made by ascii/make-frames.sh) with optional
+# text printed below it ($2). The frames play in place above that text,
+# forward then backward, until a key is pressed. The key isn't eaten: if you
+# start typing a command, it lands in the prompt. Dodecahedron from ASCII Magic
+# (MIT): https://www.ascii-magic.com/ascii/rotating-dodecahedron
+zmodload zsh/zselect 2>/dev/null
+play_frames() {
+  [[ -r $1 ]] || return 0
+  local -a L; L=("${(@f)$(<$1)}")
+  local below=$2 h=$L[1] i=0 step=1 n b=0
+  n=$(( (${#L} - 1) / h ))
+  [[ -n $below ]] && b=${#${(f)below}}
+  # Center the frames: pad by half the spare width (color codes don't count).
+  local plain=${(S)L[2]//$'\e'\[*m/}
+  local -i padn=$(( (COLUMNS - ${#plain}) / 2 ))
+  (( padn < 0 )) && padn=0
+  local pad=${(l:padn:: :)}
+  local fmt="$pad%s\e[K\n"
+  # Draw the first frame and the text below it.
+  printf "$fmt" "${(@)L[2,1+h]}"
+  [[ -n $below ]] && print -r -- "$below"
+  # Animate only in a terminal tall enough to hold both (the cursor can't
+  # move back into the scrollback) and wide enough that lines don't wrap;
+  # otherwise leave the first frame.
+  [[ -t 0 && -t 1 ]] && (( LINES > h + b + 1 && COLUMNS >= ${#plain} && n > 1 )) || return 0
+  # Per-key input (so a keypress is seen without Enter) and no echo while drawing.
+  local tty_state; tty_state=$(stty -g 2>/dev/null)
+  stty -icanon -echo 2>/dev/null
+  printf '\e[?25l'
+  until zselect -t 7 -r 0 2>/dev/null; do   # 70ms per frame; stop on input
+    (( i + step < 0 || i + step >= n )) && (( step = -step ))
+    (( i += step ))
+    printf '\e[%dA' $(( h + b ))
+    printf "$fmt" "${(@)L[2+i*h,1+(i+1)*h]}"
+    (( b )) && printf '\e[%dB' $b
+  done
+  printf '\e[?25h'
+  [[ -n $tty_state ]] && stty $tty_state 2>/dev/null
+}
+
+# A fortune from Tux: bubble and Tux in white, the saying in rainbow. cowthink
+# draws it plain (color codes would throw off the bubble width), then only the
+# text inside the bubble is colored.
+cow_banner() {
+  local -a cow mid out; local i end
+  cow=("${(@f)$(fortune | cowthink -f tux)}")
+  # Bubble: line 1 is the top edge, text lines follow until the " ---" edge.
+  for (( end = 2; end <= ${#cow}; end++ )); do [[ $cow[end] == ' -'* ]] && break; done
+  for (( i = 2; i < end; i++ )); do mid+=("${cow[i][3,-3]}"); done
+  if command -v lolcat >/dev/null; then
+    out=("${(@f)$(print -rl -- "${mid[@]}" | lolcat -f)}")
+  else
+    out=("${mid[@]}")
+  fi
+  local W=$'\e[37m' R=$'\e[0m'
+  print -r -- "$W$cow[1]"
+  for (( i = 2; i < end; i++ )); do
+    print -r -- "$W${cow[i][1,2]}$R${out[i-1]}$W${cow[i][-2,-1]}"
+  done
+  print -rl -- "${(@)cow[end,-2]}"
+  print -r -- "${cow[-1]}$R"
+}
+
+# Center stdin as one block in the terminal: every line gets the same left
+# padding, so the block keeps its shape. Color codes don't count toward width.
+center_block() {
+  local -a lines; lines=("${(@f)$(cat)}")
+  local l plain; local -i w=0 lead=9999 i n
+  # Trim trailing spaces, then measure width and the indent all lines share.
+  for (( i = 1; i <= ${#lines}; i++ )); do
+    lines[i]=${lines[i]%%[[:space:]]#}
+    plain=${(S)lines[i]//$'\e'\[*m/}
+    [[ -z ${plain//[[:space:]]/} ]] && continue
+    l=${plain%%[^ ]*}; (( ${#l} < lead )) && lead=${#l}
+    (( ${#plain} > w )) && w=${#plain}
+  done
+  (( lead == 9999 )) && lead=0
+  n=$(( (COLUMNS - (w - lead)) / 2 - lead )); (( n < 0 )) && n=0
+  local pad=${(l:n:: :)}
+  print -rl -- "${(@)lines/#/$pad}"
+}
+
 # Startup banner; skipped if the tools are not installed yet.
 if command -v figlet >/dev/null && command -v fortune >/dev/null; then
-  date "+ %H : %M" | figlet -f univers
-  fortune | cowthink -f tux | lolcat
+  printf '\e[36m'; date "+ %H : %M" | figlet -f univers | center_block; printf '\e[0m'
+  play_frames ~/projects/dotfiles/ascii/rotating-dodecahedron.frames "$(cow_banner | center_block)"
 fi
 
 function getPrompt() {
