@@ -27,6 +27,14 @@ if [ ! -d "$HOME/.oh-my-zsh" ]; then
 fi
 brew install --quiet figlet fortune cowsay lolcat
 
+echo "==> Node"
+# Keep an existing Node (nvm, fnm, Volta, brew...); install one only if missing.
+if command -v node >/dev/null; then
+  echo "    using existing node $(node --version)"
+else
+  brew install --quiet node
+fi
+
 # Claude Code config: links CLAUDE.md, hooks, skills, agents (safe to rerun on its own)
 "$DOT/claude/install.sh"
 

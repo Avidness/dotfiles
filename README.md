@@ -13,6 +13,9 @@
    brew install --cask iterm2
    ```
 
+   `init.sh` installs Node with brew if you don't already have it (an existing
+   install from nvm, fnm, Volta or brew is kept).
+
    `init.sh` links the Claude Code config but does not install Claude Code. If you
    want it: `curl -fsSL https://claude.ai/install.sh | bash`. The optional AI dev
    toolchain is in the `Brewfile`: `brew bundle --file ~/projects/dotfiles/Brewfile`.
