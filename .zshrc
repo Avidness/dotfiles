@@ -164,10 +164,29 @@ cow_banner() {
   print -r -- "${cow[-1]}$R"
 }
 
+# Center stdin as one block in the terminal: every line gets the same left
+# padding, so the block keeps its shape. Color codes don't count toward width.
+center_block() {
+  local -a lines; lines=("${(@f)$(cat)}")
+  local l plain; local -i w=0 lead=9999 i n
+  # Trim trailing spaces, then measure width and the indent all lines share.
+  for (( i = 1; i <= ${#lines}; i++ )); do
+    lines[i]=${lines[i]%%[[:space:]]#}
+    plain=${(S)lines[i]//$'\e'\[*m/}
+    [[ -z ${plain//[[:space:]]/} ]] && continue
+    l=${plain%%[^ ]*}; (( ${#l} < lead )) && lead=${#l}
+    (( ${#plain} > w )) && w=${#plain}
+  done
+  (( lead == 9999 )) && lead=0
+  n=$(( (COLUMNS - (w - lead)) / 2 - lead )); (( n < 0 )) && n=0
+  local pad=${(l:n:: :)}
+  print -rl -- "${(@)lines/#/$pad}"
+}
+
 # Startup banner; skipped if the tools are not installed yet.
 if command -v figlet >/dev/null && command -v fortune >/dev/null; then
-  printf '\e[36m'; date "+ %H : %M" | figlet -f univers; printf '\e[0m'
-  play_frames ~/projects/dotfiles/ascii/rotating-dodecahedron.frames "$(cow_banner)"
+  printf '\e[36m'; date "+ %H : %M" | figlet -f univers | center_block; printf '\e[0m'
+  play_frames ~/projects/dotfiles/ascii/rotating-dodecahedron.frames "$(cow_banner | center_block)"
 fi
 
 function getPrompt() {
