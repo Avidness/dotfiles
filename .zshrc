@@ -103,6 +103,8 @@ source $ZSH/oh-my-zsh.sh
 
 # Startup banner; skipped if the tools are not installed yet.
 if command -v figlet >/dev/null && command -v fortune >/dev/null; then
+  # Icosahedron from ASCII Magic (MIT): https://www.ascii-magic.com/ascii/icosahedron
+  lolcat < ~/projects/dotfiles/ascii/icosahedron.txt
   date "+ %H : %M" | figlet -f univers
   fortune | cowthink -f tux | lolcat
 fi
